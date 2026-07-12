@@ -1,3 +1,3 @@
 window.CottageTracking = {
-  metaPixelId: 'REPLACE_WITH_META_PIXEL_ID'
+  metaPixelId: '2140245326566056'
 };
