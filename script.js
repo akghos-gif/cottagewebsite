@@ -1,5 +1,6 @@
 const toggle = document.querySelector('.menu-toggle');
 const nav = document.querySelector('.site-nav');
+const flipbook = document.querySelector('#cottages-bungalows-flipbook');
 const tracking = window.CottageTracking || {};
 const pixelId = tracking.metaPixelId;
 const hasPixel = pixelId && !pixelId.startsWith('REPLACE_');
@@ -90,9 +91,48 @@ nav.querySelectorAll('a').forEach((link) => {
   });
 });
 
+if (flipbook) {
+  const pageImage = flipbook.querySelector('#flipbook-page');
+  const pageCount = flipbook.querySelector('#flipbook-page-count');
+  const previousButton = flipbook.querySelector('.flipbook-button--prev');
+  const nextButton = flipbook.querySelector('.flipbook-button--next');
+  const pages = Array.from({ length: 10 }, (_, index) => `assets/cottages-bungalows-${String(index + 1).padStart(2, '0')}.webp`);
+  let currentPage = 0;
+  let isTurning = false;
+
+  const updateFlipbook = (nextPage, direction) => {
+    if (isTurning || nextPage < 0 || nextPage >= pages.length || nextPage === currentPage) return;
+    isTurning = true;
+    pageImage.classList.remove('is-turning-next', 'is-turning-prev');
+    pageImage.classList.add(direction === 'next' ? 'is-turning-next' : 'is-turning-prev');
+    window.setTimeout(() => {
+      currentPage = nextPage;
+      pageImage.src = pages[currentPage];
+      pageImage.alt = `Cottages and Bungalows feature, page ${currentPage + 1} of ${pages.length}`;
+      pageCount.textContent = `Page ${currentPage + 1} of ${pages.length}`;
+      previousButton.disabled = currentPage === 0;
+      nextButton.disabled = currentPage === pages.length - 1;
+      pageImage.classList.remove('is-turning-next', 'is-turning-prev');
+      isTurning = false;
+    }, 210);
+  };
+
+  previousButton.addEventListener('click', () => updateFlipbook(currentPage - 1, 'prev'));
+  nextButton.addEventListener('click', () => updateFlipbook(currentPage + 1, 'next'));
+  flipbook.addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowLeft') updateFlipbook(currentPage - 1, 'prev');
+    if (event.key === 'ArrowRight') updateFlipbook(currentPage + 1, 'next');
+  });
+
+  pages.slice(1, 3).forEach((page) => {
+    const image = new Image();
+    image.src = page;
+  });
+}
+
 document.querySelectorAll('[data-booking-platform]').forEach((link) => {
   link.addEventListener('click', () => {
-    if (!hasPixel) return;
+    if (!trackingEnabled || typeof window.fbq !== 'function') return;
 
     const clickoutEventId = createEventId('booking-clickout');
     const clickoutData = { booking_platform: link.dataset.bookingPlatform, content_name: 'The Cottage at Broad Creek' };
