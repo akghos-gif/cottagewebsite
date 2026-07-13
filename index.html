@@ -17,7 +17,6 @@
     <script src="config.js"></script>
   </head>
   <body>
-    <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=2140245326566056&ev=PageView&noscript=1" alt="" /></noscript>
     <header class="site-header">
       <a class="brand" href="#top" aria-label="The Cottage at Broad Creek home">
         <img class="brand-logo" src="assets/cottage-logo-cropped.png" alt="The Cottage at Broad Creek" />
@@ -139,7 +138,19 @@
     <footer class="footer">
       <div class="brand"><img class="brand-logo" src="assets/cottage-logo-cropped.png" alt="The Cottage at Broad Creek" /></div>
       <p>Bozman, Maryland · Near St. Michaels</p>
+      <button class="privacy-choices" id="privacy-choices" type="button">Your Privacy Choices</button>
     </footer>
+    <aside class="tracking-consent" id="tracking-consent" role="dialog" aria-labelledby="tracking-consent-title" aria-describedby="tracking-consent-description" hidden>
+      <div class="tracking-consent-copy">
+        <p class="eyebrow">Your privacy matters</p>
+        <h2 id="tracking-consent-title">Help us measure what brings guests here.</h2>
+        <p id="tracking-consent-description">With your permission, Meta Pixel and Conversions API may collect your IP address, browser or device information, pages viewed, and actions such as clicking Airbnb or Vrbo. We use this to measure advertising, improve the site, and build audiences for future rental campaigns. Booking links work either way.</p>
+      </div>
+      <div class="tracking-consent-actions">
+        <button class="consent-button consent-button--quiet" id="tracking-decline" type="button">Continue without tracking</button>
+        <button class="consent-button consent-button--accept" id="tracking-accept" type="button">Allow measurement</button>
+      </div>
+    </aside>
     <script src="script.js"></script>
   </body>
 </html>

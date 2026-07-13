@@ -3,6 +3,22 @@ const nav = document.querySelector('.site-nav');
 const tracking = window.CottageTracking || {};
 const pixelId = tracking.metaPixelId;
 const hasPixel = pixelId && !pixelId.startsWith('REPLACE_');
+const consentKey = 'cottage_tracking_consent_v1';
+const consentBanner = document.querySelector('#tracking-consent');
+const readConsent = () => {
+  try {
+    return window.localStorage.getItem(consentKey);
+  } catch {
+    return null;
+  }
+};
+const saveConsent = (value) => {
+  try {
+    window.localStorage.setItem(consentKey, value);
+  } catch {
+    return;
+  }
+};
 const createEventId = (name) => `${name}-${crypto.randomUUID()}`;
 
 const sendCapiEvent = (eventName, eventId, customData = {}) => {
@@ -14,7 +30,10 @@ const sendCapiEvent = (eventName, eventId, customData = {}) => {
   }).catch(() => {});
 };
 
-if (hasPixel) {
+let trackingEnabled = false;
+const enableTracking = () => {
+  if (!hasPixel || trackingEnabled || window.navigator.globalPrivacyControl === true) return;
+  trackingEnabled = true;
   !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
   fbq('init', pixelId);
   fbq('track', 'PageView');
@@ -22,7 +41,40 @@ if (hasPixel) {
   const viewContentData = { content_name: 'The Cottage at Broad Creek', content_category: 'Luxury waterfront rental' };
   fbq('track', 'ViewContent', viewContentData, { eventID: viewContentEventId });
   sendCapiEvent('ViewContent', viewContentEventId, viewContentData);
+};
+
+const hideConsentBanner = () => {
+  if (consentBanner) consentBanner.hidden = true;
+};
+const showConsentBanner = () => {
+  if (consentBanner && hasPixel && window.navigator.globalPrivacyControl !== true) consentBanner.hidden = false;
+};
+
+if (hasPixel) {
+  if (window.navigator.globalPrivacyControl === true) {
+    saveConsent('denied');
+  } else if (readConsent() === 'granted') {
+    enableTracking();
+  } else {
+    showConsentBanner();
+  }
 }
+
+document.querySelector('#tracking-accept')?.addEventListener('click', () => {
+  saveConsent('granted');
+  hideConsentBanner();
+  enableTracking();
+});
+
+document.querySelector('#tracking-decline')?.addEventListener('click', () => {
+  saveConsent('denied');
+  hideConsentBanner();
+});
+
+document.querySelector('#privacy-choices')?.addEventListener('click', () => {
+  if (window.navigator.globalPrivacyControl === true) return;
+  showConsentBanner();
+});
 
 toggle.addEventListener('click', () => {
   const isOpen = nav.classList.toggle('is-open');
