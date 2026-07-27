@@ -130,6 +130,39 @@ if (flipbook) {
   });
 }
 
+const reviewRotator = document.querySelector('#review-rotator');
+if (reviewRotator) {
+  const slides = Array.from(reviewRotator.querySelectorAll('.review-slide'));
+  const dots = Array.from(document.querySelectorAll('.review-dot'));
+  let currentReview = 0;
+  let rotateTimer = null;
+
+  const showReview = (index) => {
+    currentReview = (index + slides.length) % slides.length;
+    slides.forEach((slide, slideIndex) => slide.classList.toggle('is-active', slideIndex === currentReview));
+    dots.forEach((dot, dotIndex) => dot.classList.toggle('is-active', dotIndex === currentReview));
+  };
+
+  const startRotation = () => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    rotateTimer = window.setInterval(() => showReview(currentReview + 1), 10000);
+  };
+
+  const resetRotation = () => {
+    if (rotateTimer) window.clearInterval(rotateTimer);
+    startRotation();
+  };
+
+  dots.forEach((dot, dotIndex) => {
+    dot.addEventListener('click', () => {
+      showReview(dotIndex);
+      resetRotation();
+    });
+  });
+
+  startRotation();
+}
+
 document.querySelectorAll('[data-booking-platform]').forEach((link) => {
   link.addEventListener('click', () => {
     if (!trackingEnabled || typeof window.fbq !== 'function') return;
